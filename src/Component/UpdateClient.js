@@ -1,6 +1,6 @@
 import axios from 'axios'
 import React, { useEffect ,useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams ,useNavigate} from 'react-router-dom'
 import { url } from '../config'
 
 export default function UpdateClient() {
@@ -9,6 +9,7 @@ export default function UpdateClient() {
     const [nomComplet, setNomComplet] = useState("")
     const [nbrGifts, setNbrGifts] = useState(0)
     const [remiseDefaut, setRemiseDefaut] = useState(0)
+    const navigate = useNavigate();
 
     useEffect(() => {
         axios.get(url + "/client/"+id).then((res) => {
@@ -26,6 +27,8 @@ export default function UpdateClient() {
         axios.put(url + "/client/"+id, Client).then(() => {
         }
         )
+        alert("Client modifié")
+        navigate('/Client')
     }
     
 
@@ -48,7 +51,7 @@ export default function UpdateClient() {
                 <label htmlFor="remiseDefaut">Remise par default</label>
                 <input type="number" className="form-control" value={remiseDefaut} onChange={(e)=>{setRemiseDefaut(e.target.value)}} name="remiseDefaut" required />
             </div>
-            <button type="submit" className="btn btn-primary">Modifier</button>
+            <button type="submit" className="btn btn-primary mt-2">Modifier</button>
         </form>
     </div>
 </div>

@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { url } from '../config'
+import { useNavigate } from 'react-router-dom';
 
 
 export default function AddCommande() {
-    const [Commande, setCommande] = useState({})
-    const [newProduit, setNewProduit] = useState([])
+
+    const navigate = useNavigate();
+
+
 
     const [checkedProduit, setCheckedProduit] = useState([])
 
@@ -21,7 +24,7 @@ export default function AddCommande() {
 
     const [ClientID, setClientID] = useState('')
     const [nbGifts, setNbGifts] = useState('')
-    const [nbGiftsSelected , setNbGiftsSelected] = useState(0)
+    const [nbGiftsSelected, setNbGiftsSelected] = useState(0)
 
     const [Clients, setClients] = useState([])
     const [Produits, setProduits] = useState([])
@@ -47,10 +50,6 @@ export default function AddCommande() {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        var sum = 0;
-        checkedProduit.forEach(id => {
-            sum += Produits.find(p => p._id === id).prix_ttc
-        })
         let newProduits = []
         let Commande
         checkedProduit.map((id) => {
@@ -67,37 +66,41 @@ export default function AddCommande() {
                 prix_remise = soldeGift * 0.3 + (prix_ttc - soldeGift) * (Clients.find(c => c._id === ClientID).remise_defaut) / 100
                 soldeGift = 0
             } else {
-     
+
                 prix_remise = prix_ttc
             }
-            console.log(soldeGift)
             prix_remise = prix_remise.toFixed(2)
             newProduits.push({ produitID, libelle, prix_ttc, prix_remise })
+
             if (soldeGift === 0) {
-                axios.put(url + "/client/" + ClientID, { nbr_gifts: nbGifts-nbGiftsSelected })
-                setNbGifts(nbGifts-nbGiftsSelected )
+                axios.put(url + "/client/" + ClientID, { nbr_gifts: nbGifts - nbGiftsSelected })
+                setNbGifts(nbGifts - nbGiftsSelected)
 
             } else {
-                const newNbGifts = nbGifts-nbGiftsSelected+ Math.floor(soldeGift / 100 )
+                const newNbGifts = nbGifts - nbGiftsSelected + Math.floor(soldeGift / 100)
                 setNbGifts(newNbGifts)
-                console.log(newNbGifts)
-                axios.put(url + "/client/" + ClientID, { nbr_gifts:newNbGifts})
+                axios.put(url + "/client/" + ClientID, { nbr_gifts: newNbGifts })
             }
         })
+
         Commande = { client: ClientID, produits: newProduits }
 
         axios.post(url + "/commande", Commande).then(() => {
             console.log("added")
         })
 
+        alert("Commande ajoutée avec succés")
+        navigate('/commande')
 
+
+        
     }
 
     return (
-        <div className='container col-12 col-md-6  '>
+        <div className='container col-12 col-md-6 mt-3 '>
             <form onSubmit={handleSubmit} >
                 <div className="form-group">
-                    <label htmlFor="Client">Choisir le client</label>
+                    <label htmlFor="Client"><h3 className='text-primary'>1) Choisir le client</h3></label>
                     <select className="form-control" name="Client" id="Client" value={ClientID} onChange={(e) => { setClientID(e.target.value) }} required>
                         <option value="">Choisir le client</option>
                         {Clients.map((client) => {
@@ -107,8 +110,8 @@ export default function AddCommande() {
                         })}
                     </select>
                 </div>
-                <div className="form-group">
-                    <label htmlFor="Produit">Choisir le produit</label>
+                <div className="form-group mt-2">
+                    <label htmlFor="Produit"><h3 className='text-primary'>2) Choisir les produits</h3></label>
 
                     <table className="table table-striped">
                         <thead>
@@ -126,9 +129,16 @@ export default function AddCommande() {
                                     <tr key={produit._id}>
                                         <td>{produit.libelle}</td>
                                         <td>{produit.prix_ttc}</td>
-                                        <td>{produit.en_stock ? "Oui" : "Non"}</td>
-                                        <td>{produit.is_gift ? "Oui" : "Non"}</td>
-                                        <td><input type="checkbox" name="Produit" value={produit._id} onChange={handleChange} /></td>
+                                        <td>{produit.en_stock ? <i className='bi bi-check-lg text-success fs-4 '> </i> : <i className='bi bi-x-lg text-danger fs-4' > </i>}</td>
+                                        <td>{produit.is_gift ? <i className='bi bi-check-lg text-success fs-4 '> </i> : <i className='bi bi-x-lg text-danger fs-4' > </i>}</td>
+                                        <td>
+                                            {produit.en_stock ?
+                                                <input type="checkbox" name="Produit" value={produit._id} onChange={handleChange} />
+                                                :
+                                                <input type="checkbox" name="Produit" value={produit._id} onChange={handleChange} disabled />
+
+                                            }
+                                        </td>
                                     </tr>
                                 )
                             })}
@@ -136,12 +146,12 @@ export default function AddCommande() {
                     </table>
 
                 </div>
-                <div className="form-group">
-                    <label htmlFor="nbGifts">Nombre de gifts à utiliser</label>
-                    <select className="form-control" name="nbGifts" id="nbGifts" value={nbGiftsSelected} onChange={(e) =>  setNbGiftsSelected(e.target.value) } required>
+                <div className="form-group mt-2">
+                    <label htmlFor="nbGifts"><h4 className='text-primary'>3) Choisir le nombre de gifts à utiliser</h4></label>
+                    <select className="form-control" name="nbGifts" id="nbGifts" value={nbGiftsSelected} onChange={(e) => setNbGiftsSelected(e.target.value)} required>
                         {[...Array(nbGifts + 1)?.keys()].map((i) => {
                             return (
-                                <option value={i}>{i}</option>
+                                <option key={i} value={i}>{i}</option>
                             )
                         })}
                     </select>
@@ -150,7 +160,7 @@ export default function AddCommande() {
                 </div>
 
 
-                <div className="form-group">
+                <div className="form-group mt-2">
                     <button type="submit" className="btn btn-primary">Ajouter</button>
                 </div>
             </form>

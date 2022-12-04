@@ -8,6 +8,7 @@ import Home from './Component/Home';
 import Navbar from './Component/Navbar';
 import ListCommande from './Component/ListCommande';
 import AddCommande from './Component/AddCommande';
+import UpdateCommande from './Component/UpdateCommande';
 function App() {
   return (
     <div className="App">
@@ -21,6 +22,7 @@ function App() {
           <Route path="/produit/update/:id" element={<UpdateProduit />} />
           <Route path="/commande" element={<ListCommande />} />
           <Route path='/commande/add' element={<AddCommande />} />
+          <Route path='/commande/update/:id' element={<UpdateCommande />} />
           <Route path="*" element={<h1>404 Not Found</h1>} />
 
         </Routes>

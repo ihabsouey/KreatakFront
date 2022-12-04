@@ -34,14 +34,22 @@ export default function AddProduit() {
             console.log("deleted")
         })
     }
+    const [produitSearch, setProduitSearch] = useState('')
+    let filtredByName
+    if (Produit) {
+        filtredByName = Produit.filter(produit => {
+            return produit.libelle.toLowerCase().indexOf(produitSearch.toLowerCase()) !== -1
+        })
+    }
 
+ 
     return (
         <div>
 
             <div className='container'>
                 <div className='row mt-4 justify-content-between'>
                     <div className='col-12  col-sm-4 col-md-3'>
-                        <h1 className='text-primary'>Add Produit</h1>
+                        <h1 className='text-primary'>Ajouter un produit</h1>
                         <form onSubmit={handleSubmit}>
                             <div className="form-group">
                                 <label htmlFor="Libelle">Libelle</label>
@@ -49,7 +57,7 @@ export default function AddProduit() {
                             </div>
                             <div className="form-group">
                                 <label htmlFor="Prix">Prix</label>
-                                <input type="number" className="form-control" name="Prix" value={Prix} onChange={(e) => setPrix(e.target.value)} required />
+                                <input type="number" min="0" className="form-control" name="Prix" value={Prix} onChange={(e) => setPrix(e.target.value)} required />
                             </div>
 
                             <div className="row">
@@ -68,14 +76,20 @@ export default function AddProduit() {
                                     </select>
                                 </div>
                             </div>
-                            <button type="submit" className="btn btn-primary mt-2">Submit</button>
+                            <button type="submit" className="btn btn-primary mt-2">Ajouter</button>
                         </form>
                     </div>
 
                     <div className='col-12 col-sm-8'>
                         <div className="container">
-                            <h1 className='text-primary'>Liste des produits</h1>
-                            {Produit ?
+                            <div className="row align-items-center justify-content-between">
+                                <h1 className='text-primary col-12 col-sm-6 '>Liste des produits</h1>
+                                <div className="col-12 col-sm-4">
+                                    <input type="text" className="form-control" placeholder="Chercher un produit" name="produitSearch" value={produitSearch} onChange={(e) => setProduitSearch(e.target.value)} />
+                                </div>
+                            </div>
+
+                            {filtredByName ?
                                 <table className="table">
                                     <thead>
                                         <tr>
@@ -87,15 +101,15 @@ export default function AddProduit() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {Produit.map((Produit) => (
-                                            <tr key={Produit._id}>
-                                                <td>{Produit.libelle}</td>
-                                                <td>{Produit.prix_ttc}</td>
-                                                <td>{Produit.en_stock ? <i className='bi bi-check-lg text-success fs-4 '> </i> : <i className='bi bi-x-lg text-danger fs-4' > </i>}</td>
-                                                <td>{Produit.is_gift ? <i className='bi bi-check-lg text-success fs-4'> </i> : <i className='bi bi-x-lg text-danger fs-4'> </i>}</td>
+                                        {filtredByName.map((filtredByName) => (
+                                            <tr key={filtredByName._id}>
+                                                <td>{filtredByName.libelle}</td>
+                                                <td>{filtredByName.prix_ttc}</td>
+                                                <td>{filtredByName.en_stock ? <i className='bi bi-check-lg text-success fs-4 '> </i> : <i className='bi bi-x-lg text-danger fs-4' > </i>}</td>
+                                                <td>{filtredByName.is_gift ? <i className='bi bi-check-lg text-success fs-4'> </i> : <i className='bi bi-x-lg text-danger fs-4'> </i>}</td>
                                                 <td>
-                                                    <button className="btn btn-danger" onClick={() => handleDelete(Produit._id)} ><i className='bi bi-trash '> </i></button>
-                                                    <Link to={"/produit/update/" + Produit._id} > <button className="btn btn-warning" ><i className='bi bi-pen '> </i></button> </Link>
+                                                    <button className="btn btn-danger" onClick={() => handleDelete(filtredByName._id)} ><i className='bi bi-trash '> </i></button>
+                                                    <Link to={"/produit/update/" + filtredByName._id} > <button className="btn btn-warning" ><i className='bi bi-pen '> </i></button> </Link>
                                                 </td>
 
                                             </tr>
